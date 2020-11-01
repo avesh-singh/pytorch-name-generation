@@ -2,7 +2,7 @@ from data import *
 from model import *
 import matplotlib.pyplot as plt
 
-hidden_size = 128
+hidden_size = 256
 n_iter = 100000
 record_every = 5000
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -26,14 +26,14 @@ def train():
         name_tensor = name_tensor.to(device)
         target_tensor = target_tensor.to(device)
         optim.zero_grad()
-        rnn_outputs = [name_tensor[0]]
+        rnn_outputs = []
         for j in range(name_tensor.size(0)):
             output, hidden = generator(category_tensor, name_tensor[j], hidden)
             if i % record_every == (record_every-1):
                 rnn_outputs.append(output)
             l = criterion(output, target_tensor[j].view(1))
             loss += l
-        loss /= name_tensor.size(0)
+        loss /= name_tensor.size(0) - 1
         if i % record_every == (record_every-1):
             total_loss.append(loss.item()/record_every)
             print_training_details(rnn_outputs, category, name)
@@ -53,6 +53,8 @@ def tensor_to_word(t):
     _, idx = t.topk(1, dim=-1)
     if idx == n_letters - 1:
         return '<eos>'
+    if idx == n_letters - 2:
+        return '<sos>'
     return all_letters[idx]
 
 

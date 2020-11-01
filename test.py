@@ -11,13 +11,13 @@ print("device: %s" % device)
 generator.to(device)
 
 
-def sample(category, start_letter='A'):
+def sample(category):
     with torch.no_grad():
         category_tensor = category_to_tensor(category).to(device)
-        start_tensor = word_to_tensor(start_letter).to(device)
+        start_tensor = get_start_tensor()
         hidden = generator.init_hidden().to(device)
         word_tensor = start_tensor
-        name_generated = start_letter
+        name_generated = ''
         while len(name_generated) < max_length:
             output, hidden = generator(category_tensor, word_tensor[0], hidden)
             if is_eos(output):
@@ -34,14 +34,16 @@ def is_eos(output):
     return idx == n_letters - 1
 
 
-def sample_names_from_generator(category, start_letters='ABC'):
-    for letter in start_letters:
-        print(sample(category, letter))
+def sample_names_from_generator(category, count=3):
+    for c in range(count):
+        print(sample(category))
 
 
-sample_names_from_generator('Russian', 'RUS')
-sample_names_from_generator('German', 'GERRR')
-sample_names_from_generator('Spanish', 'SPA')
-sample_names_from_generator('Chinese', 'chi')
-sample_names_from_generator('Polish', 'abs')
+def get_start_tensor():
+    t = torch.zeros(1, 1, n_letters).to(device)
+    t[0, 0, n_letters-2] = 1
+    return t
 
+
+for category in all_categories:
+    sample_names_from_generator(category, 2)

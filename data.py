@@ -12,7 +12,8 @@ def find_files(path): return glob.glob(path)
 
 
 all_letters = string.ascii_letters + " .,;'-"
-n_letters = len(all_letters) + 1
+n_letters = len(all_letters) + 2
+# <StartOfSentence> and <EndOfSentence> are two special tokens
 
 
 def unicode_to_ascii(s):
@@ -42,7 +43,8 @@ n_category = len(all_categories)
 
 
 def word_to_tensor(name):
-    idxs = [all_letters.find(a) for a in name]
+    idxs = [n_letters - 2]
+    idxs.extend([all_letters.find(a) for a in name])
     oh_tensor = torch.zeros(len(idxs), 1, n_letters, dtype=torch.float)
     for i, id in enumerate(idxs):
         oh_tensor[i, 0, id] = 1
@@ -59,7 +61,7 @@ def category_to_tensor(category):
 def get_target_tensor(name):
     idxs = [all_letters.find(a) for a in name]
     idxs.append(n_letters - 1)
-    return torch.tensor(idxs[1:], dtype=torch.long)
+    return torch.tensor(idxs, dtype=torch.long)
 
 
 def random_choice(l):
