@@ -20,7 +20,8 @@ def train():
     generator.to(device)
     for i in range(n_iter):
         category_tensor, name_tensor, target_tensor, category, name = random_training_example()
-        hidden = generator.init_hidden().to(device)
+        hidden1 = generator.init_hidden1().to(device)
+        hidden2 = generator.init_hidden2().to(device)
         loss = 0
         category_tensor = category_tensor.to(device)
         name_tensor = name_tensor.to(device)
@@ -28,7 +29,7 @@ def train():
         optim.zero_grad()
         rnn_outputs = []
         for j in range(name_tensor.size(0)):
-            output, hidden = generator(category_tensor, name_tensor[j], hidden)
+            output, hidden1, hidden2 = generator(category_tensor, name_tensor[j], hidden1, hidden2)
             if i % record_every == (record_every-1):
                 rnn_outputs.append(output)
             l = criterion(output, target_tensor[j].view(1))
@@ -43,7 +44,7 @@ def train():
 
 
 def print_training_details(output_list, category, name):
-    print("category: %s,\t name:\t %s" % (category, name), end='\t network output: ')
+    print("category: %s,\t\t name:\t\t %s" % (category, name), end='\t\t output: ')
     for output_tensor in output_list:
         print(tensor_to_word(output_tensor), end='')
     print()

@@ -15,11 +15,12 @@ def sample(category):
     with torch.no_grad():
         category_tensor = category_to_tensor(category).to(device)
         start_tensor = get_start_tensor()
-        hidden = generator.init_hidden().to(device)
+        hidden1 = generator.init_hidden1().to(device)
+        hidden2 = generator.init_hidden2().to(device)
         word_tensor = start_tensor
         name_generated = ''
         while len(name_generated) < max_length:
-            output, hidden = generator(category_tensor, word_tensor[0], hidden)
+            output, hidden1, hidden2 = generator(category_tensor, word_tensor[0], hidden1, hidden2)
             if is_eos(output):
                 break
             word = tensor_to_word(output)
@@ -36,7 +37,7 @@ def is_eos(output):
 
 def sample_names_from_generator(category, count=3):
     for c in range(count):
-        print(sample(category))
+        print("{!r:20} {}".format(category, sample(category)))
 
 
 def get_start_tensor():
@@ -46,4 +47,4 @@ def get_start_tensor():
 
 
 for category in all_categories:
-    sample_names_from_generator(category, 2)
+    sample_names_from_generator(category, 1)
